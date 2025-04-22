@@ -1,6 +1,6 @@
 provider "azurerm" {
   features {}
-  subscription_id = "855f9502-3230-4377-82a2-cc5c8fa3c59d"
+  subscription_id = "abd34832-7708-43f9-a480-e3b7a87b41d7"
 }
 
 data "azurerm_user_assigned_identity" "vault_identities" {
