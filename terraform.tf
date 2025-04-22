@@ -15,12 +15,12 @@ terraform {
       version = ">= 3.5.0"
     }
   }
-  cloud { 
-    
-    organization = "SivajiRaavi" 
+  cloud {
 
-    workspaces { 
-      name = "azure-recovery-services-vault-dev" 
-    } 
-  } 
+    organization = "Mccain_Foods"
+
+    workspaces {
+      name = "azure-recovery-services-vault-dev"
+    }
+  }
 }

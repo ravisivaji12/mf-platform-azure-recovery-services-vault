@@ -1,12 +1,19 @@
+output "vault_ids" {
+  description = "IDs of all Recovery Services Vaults"
+  value       = { for k, v in module.azure_recovery_services_vault : k => v.resource_id }
+}
 
-# output "resource" {
-#   description = "resource Id output"
-#   value       = azurerm_recovery_services_vault.resource
-# }
+output "vault_names" {
+  description = "Names of the Vaults"
+  value       = [for k, v in module.azure_recovery_services_vault : v.resource.name]
+}
 
-# # Module owners should include the full resource via a 'resource' output
-# # https://azure.github.io/Azure-Verified-Modules/specs/terraform/#id-tffr2---category-outputs---additional-terraform-outputs
-# output "resource_id" {
-#   description = "resource Id output"
-#   value       = azurerm_recovery_services_vault.resource_id
-# }
+output "vault_locations" {
+  description = "Locations of the Vaults"
+  value       = [for k, v in module.azure_recovery_services_vault : v.resource.location]
+}
+
+output "vault_rg_names" {
+  description = "Resource Groups for each vault"
+  value       = [for k, v in module.azure_recovery_services_vault : v.resource.resource_group_name]
+}

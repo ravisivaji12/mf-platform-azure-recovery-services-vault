@@ -1,214 +1,32 @@
 provider "azurerm" {
   features {}
-  subscription_id = "abd34832-7708-43f9-a480-e3b7a87b41d7"
-}
-resource "random_integer" "region_index" {
-  max = length(local.test_regions) - 1
-  min = 0
-}
-# This allow use to randomize the name of resources
-resource "random_string" "this" {
-  length  = 6
-  special = false
-  upper   = false
-}
-# This ensures we have unique CAF compliant names for our resources.
-module "naming" {
-  source  = "Azure/naming/azurerm"
-  version = "0.4.0"
-}
-resource "azurerm_resource_group" "this" {
-  location = local.test_regions[random_integer.region_index.result]
-  name     = module.naming.resource_group.name_unique
-}
-resource "azurerm_resource_group" "primary" {
-  location = "westus3"
-  name     = "${module.naming.resource_group.name_unique}-wus3"
-}
-resource "azurerm_resource_group" "secondary" {
-  location = "Central US"
-  name     = "${module.naming.resource_group.name_unique}-cus"
-}
-locals {
-  test_regions = ["eastus", "eastus2", "westus2"]
-  vault_name   = "${module.naming.recovery_services_vault.slug}-${module.azure_region.location_short}-app1-001"
-}
-module "regions" {
-  source  = "Azure/regions/azurerm"
-  version = "0.5.2" # change this to your desired version, https://www.terraform.io/language/expressions/version-constraints
+  subscription_id = "855f9502-3230-4377-82a2-cc5c8fa3c59d"
 }
 
-module "azure_region" {
-  source  = "claranet/regions/azurerm"
-  version = "7.1.1"
+data "azurerm_user_assigned_identity" "vault_identities" {
+  for_each = {
+    for vault_key, vault in var.recovery_vault_config : 
+    vault_key => {
+      identities          = try(vault.managed_identities.user_assigned_identity_names, [])
+      resource_group_name = vault.resource_group_name
+    } if try(length(vault.managed_identities.user_assigned_identity_names), 0) > 0
+  }
 
-  azure_region = "westus3"
+  name                = each.value.identities[0]  # Assuming only one user-assigned identity per vault
+  resource_group_name = each.value.resource_group_name
 }
-resource "azurerm_user_assigned_identity" "this_identity" {
-  location            = azurerm_resource_group.this.location
-  name                = module.naming.user_assigned_identity.name_unique
-  resource_group_name = azurerm_resource_group.this.name
+resource "azurerm_user_assigned_identity" "vault_identity" {
+  name                = "vault-identity"
+  resource_group_name = var.recovery_vault_config.resource_group_name
+  location            = var.recovery_vault_config.location
 }
-
-# module "azure_recovery_services_vault" {
-#   source                                         = "Azure/avm-res-recoveryservices-vault/azurerm"
-#   name                                           = local.vault_name
-#   location                                       = azurerm_resource_group.this.location
-#   resource_group_name                            = azurerm_resource_group.this.name
-#   cross_region_restore_enabled                   = false
-#   alerts_for_all_job_failures_enabled            = true
-#   alerts_for_critical_operation_failures_enabled = true
-#   classic_vmware_replication_enabled             = false
-#   public_network_access_enabled                  = true
-#   storage_mode_type                              = "GeoRedundant"
-#   sku                                            = "RS0"
-#   managed_identities = {
-#     system_assigned            = true
-#     user_assigned_resource_ids = [azurerm_user_assigned_identity.this_identity.id]
-#   }
-#   tags = {
-#     env   = "Prod"
-#     owner = "ABREG0"
-#     dept  = "IT"
-#   }
-#   workload_backup_policy = {
-#     "pol-rsv-SAPh-vault-002" = {
-#       name          = "pol-rsv-SAPh-vault-01"
-#       workload_type = "SAPHanaDatabase"
-#       settings = {
-#         time_zone           = "Pacific Standard Time"
-#         compression_enabled = false
-#       }
-#       backup_frequency = "Weekly" # Daily or Weekly
-#       protection_policy = {
-#         log = {
-#           policy_type           = "Log"
-#           retention_daily_count = 15
-#           backup = {
-#             frequency_in_minutes = 15
-#             time                 = "22:00"
-#             weekdays             = ["Saturday"]
-#           }
-#         }
-#         full = {
-#           policy_type = "Full"
-#           backup = {
-#             time     = "22:00"
-#             weekdays = ["Saturday"]
-#           }
-#           retention_daily_count = 15
-#           retention_weekly = {
-#             count    = 10
-#             weekdays = ["Saturday"]
-#           }
-#           retention_monthly = {
-#             count     = 10
-#             weekdays  = ["Saturday", ]
-#             weeks     = ["First", "Third"]
-#             monthdays = [3, 10, 20]
-#           }
-#           retention_yearly = {
-#             count     = 10
-#             months    = ["January", "June", "October", "March"]
-#             weekdays  = ["Saturday", ]
-#             weeks     = ["First", "Second", "Third"]
-#             monthdays = [3, 10, 20]
-#           }
-#         }
-#         differential = {
-#           policy_type           = "Differential"
-#           retention_daily_count = 15
-#           backup = {
-#             time     = "22:00"
-#             weekdays = ["Wednesday", "Friday"]
-#           }
-#         }
-#       }
-#     }
-#   }
-#   vm_backup_policy = {
-#     pol-rsv-vm-vault-001 = {
-#       name                           = "pol-rsv-vm-vault-001"
-#       timezone                       = "Pacific Standard Time"
-#       instant_restore_retention_days = 5
-#       policy_type                    = "V2"
-#       frequency                      = "Weekly" # (Required) Sets the backup frequency. Possible values are Hourly, Daily and Weekly
-#       instant_restore_resource_group = {
-#         ps = { prefix = "prefix-"
-#           suffix = null
-#         }
-#       }
-#       backup = {
-#         time          = "22:00"
-#         hour_interval = 6
-#         hour_duration = 12
-#         weekdays      = ["Tuesday", "Saturday"]
-#       }
-#       retention_daily = 7 # 7-9999
-#       retention_weekly = {
-#         count    = 7
-#         weekdays = ["Tuesday", "Saturday"]
-#       }
-#       retention_monthly = {
-#         count             = 5
-#         weekdays          = ["Tuesday", "Saturday"]
-#         weeks             = ["First", "Third"]
-#         days              = [3, 10, 20]
-#         include_last_days = false
-#       }
-#       retention_yearly = {
-#         count             = 5
-#         months            = ["January", "June"]
-#         weekdays          = ["Tuesday", "Saturday"]
-#         weeks             = ["First", "Third"]
-#         days              = [3, 10, 20]
-#         include_last_days = false
-#       }
-#     }
-#   }
-#   file_share_backup_policy = {
-#     pol-rsv-fileshare-vault-001 = {
-#       name     = "pol-rsv-fileshare-vault-001"
-#       timezone = "Pacific Standard Time"
-
-#       frequency = "Daily" # (Required) Sets the backup frequency. Possible values are hourly, Daily
-
-#       backup = {
-#         time = "22:00"
-#         hourly = {
-#           interval        = 6
-#           start_time      = "13:00"
-#           window_duration = "6"
-#         }
-#       }
-#       retention_daily = 1 # 1-200
-#       retention_weekly = {
-#         count    = 7
-#         weekdays = ["Tuesday", "Saturday"]
-#       }
-#       retention_monthly = {
-#         count = 5
-#         # weekdays =  ["Tuesday","Saturday"]
-#         # weeks = ["First","Third"]
-#         days              = [3, 10, 20]
-#         include_last_days = false
-#       }
-#       retention_yearly = {
-#         count    = 5
-#         months   = ["January", "June"]
-#         weekdays = ["Tuesday", "Saturday"]
-#         weeks    = ["First", "Third"]
-#         # days = [3, 10, 20]
-#         # include_last_days = false
-#       }
-#     }
-#   }
-# }
 
 module "azure_recovery_services_vault" {
   source = "Azure/avm-res-recoveryservices-vault/azurerm"
 
-  name                                           = var.recovery_vault_config.name
+  for_each = toset(var.name)
+
+  name                                           = each.key
   location                                       = var.recovery_vault_config.location
   resource_group_name                            = var.recovery_vault_config.resource_group_name
   cross_region_restore_enabled                   = var.recovery_vault_config.cross_region_restore_enabled
@@ -218,7 +36,10 @@ module "azure_recovery_services_vault" {
   public_network_access_enabled                  = var.recovery_vault_config.public_network_access_enabled
   storage_mode_type                              = var.recovery_vault_config.storage_mode_type
   sku                                            = var.recovery_vault_config.sku
-  managed_identities                             = var.recovery_vault_config.managed_identities
+  managed_identities                             = {
+    system_assigned            = var.recovery_vault_config.managed_identities.system_assigned
+    user_assigned_resource_ids = [ azurerm_user_assigned_identity.vault_identity.id]
+  }# var.recovery_vault_config.managed_identities
   tags                                           = var.recovery_vault_config.tags
   workload_backup_policy                         = var.recovery_vault_config.workload_backup_policy
   vm_backup_policy                               = var.recovery_vault_config.vm_backup_policy

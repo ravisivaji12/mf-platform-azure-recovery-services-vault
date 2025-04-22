@@ -1,5 +1,5 @@
 recovery_vault_config = {
-  name                                           = "recovery-vault-prod"
+  # name                                           = "recovery-vault-prod"
   location                                       = "East US"
   resource_group_name                            = "rg-prod-vault"
   cross_region_restore_enabled                   = false
@@ -119,8 +119,8 @@ recovery_vault_config = {
 
   file_share_backup_policy = {
     pol-rsv-fileshare-vault-001 = {
-      name     = "pol-rsv-fileshare-vault-001"
-      timezone = "Pacific Standard Time"
+      name      = "pol-rsv-fileshare-vault-001"
+      timezone  = "Pacific Standard Time"
       frequency = "Daily"
       backup = {
         time = "22:00"
