@@ -58,5 +58,5 @@ jobs:
       - name: Terraform Init
         run: terraform init 
         
-      - name: Terraform Format
-        run: terraform validate -check -recursive
+      - name: Terraform Validate
+        run: terraform validate
