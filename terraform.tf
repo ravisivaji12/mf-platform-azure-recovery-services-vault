@@ -15,4 +15,12 @@ terraform {
       version = ">= 3.5.0"
     }
   }
+  cloud { 
+    
+    organization = "SivajiRaavi" 
+
+    workspaces { 
+      name = "azure-recovery-services-vault-dev" 
+    } 
+  } 
 }
