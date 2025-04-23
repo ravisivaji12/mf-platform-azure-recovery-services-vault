@@ -150,15 +150,10 @@ jobs:
   checkov:
     needs: plan
     runs-on: ubuntu-latest
-    needs: [
-      terraform-format,
-      terraform-validate,
-      terraform-tfsec,
-      terraform-checkov,
-      terraform-plan
-    ]
+    needs: terraform-plan
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Download plan
         uses: actions/download-artifact@v4
