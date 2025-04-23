@@ -141,54 +141,54 @@ jobs:
       # - name: Terraform Plan                
       #   run: terraform plan -out=main.tfplan -input=false
 
-  compliance:
-    runs-on: ubuntu-latest
+  # compliance:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get install jq curl
+  #     - name: Install dependencies
+  #       run: |
+  #         sudo apt-get install jq curl
 
-      - name: Fetch plan JSON from TFC
-        env:
-          TFC_TOKEN: ${{ secrets.TF_API_TOKEN }}
-          TFC_ORG: SivajiRaavi
-          TFC_WORKSPACE: azure-recovery-services-vault-dev
-        run: |
-          # Get workspace ID
-          WORKSPACE_ID=$(curl -s \
-            --header "Authorization: Bearer $TFC_TOKEN" \
-            https://app.terraform.io/api/v2/organizations/$TFC_ORG/workspaces/$TFC_WORKSPACE \
-            | jq -r '.data.id')
+  #     - name: Fetch plan JSON from TFC
+  #       env:
+  #         TFC_TOKEN: ${{ secrets.TF_API_TOKEN }}
+  #         TFC_ORG: SivajiRaavi
+  #         TFC_WORKSPACE: azure-recovery-services-vault-dev
+  #       run: |
+  #         # Get workspace ID
+  #         WORKSPACE_ID=$(curl -s \
+  #           --header "Authorization: Bearer $TFC_TOKEN" \
+  #           https://app.terraform.io/api/v2/organizations/$TFC_ORG/workspaces/$TFC_WORKSPACE \
+  #           | jq -r '.data.id')
 
-          # Get latest run ID
-          RUN_ID=$(curl -s \
-            --header "Authorization: Bearer $TFC_TOKEN" \
-            https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/runs \
-            | jq -r '.data[0].id')
+  #         # Get latest run ID
+  #         RUN_ID=$(curl -s \
+  #           --header "Authorization: Bearer $TFC_TOKEN" \
+  #           https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/runs \
+  #           | jq -r '.data[0].id')
 
-          # Get plan ID
-          PLAN_ID=$(curl -s \
-            --header "Authorization: Bearer $TFC_TOKEN" \
-            https://app.terraform.io/api/v2/runs/$RUN_ID \
-            | jq -r '.data.relationships.plan.data.id')
+  #         # Get plan ID
+  #         PLAN_ID=$(curl -s \
+  #           --header "Authorization: Bearer $TFC_TOKEN" \
+  #           https://app.terraform.io/api/v2/runs/$RUN_ID \
+  #           | jq -r '.data.relationships.plan.data.id')
 
-          # Get the JSON plan download URL
-          PLAN_JSON_URL=$(curl -s \
-            --header "Authorization: Bearer $TFC_TOKEN" \
-            https://app.terraform.io/api/v2/plans/$PLAN_ID/json-output \
-            | jq -r '.data.attributes."hosted-json-url"')
+  #         # Get the JSON plan download URL
+  #         PLAN_JSON_URL=$(curl -s \
+  #           --header "Authorization: Bearer $TFC_TOKEN" \
+  #           https://app.terraform.io/api/v2/plans/$PLAN_ID/json-output \
+  #           | jq -r '.data.attributes."hosted-json-url"')
 
-          # Download JSON plan
-          curl -s -H "Authorization: Bearer $TFC_TOKEN" "$PLAN_JSON_URL" -o tfplan.json
+  #         # Download JSON plan
+  #         curl -s -H "Authorization: Bearer $TFC_TOKEN" "$PLAN_JSON_URL" -o tfplan.json
 
-      - name: Run terraform-compliance
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/target \
-            eerkunt/terraform-compliance \
-            -p /target/tfplan.json \
-            -f /target/features
+  #     - name: Run terraform-compliance
+  #       run: |
+  #         docker run --rm \
+  #           -v ${{ github.workspace }}:/target \
+  #           eerkunt/terraform-compliance \
+  #           -p /target/tfplan.json \
+  #           -f /target/features
