@@ -16,7 +16,7 @@ on:
     inputs:
       vault_name:
         description: 'Name of the Recovery Services Vault'
-        required: true
+        required: false
         default: 'my-recovery-vault'
         
 
