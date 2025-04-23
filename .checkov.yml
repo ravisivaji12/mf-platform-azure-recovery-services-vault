@@ -1,3 +1,0 @@
-skip_checks:
-  - CKV_GHA_7  # Workflow inputs allowed for Terraform parameterization
-  - CKV_TF_1   # Using a version tag instead of commit hash for module source
