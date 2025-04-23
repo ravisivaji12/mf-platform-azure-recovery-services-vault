@@ -22,7 +22,7 @@ resource "azurerm_user_assigned_identity" "vault_identity" {
 }
 
 module "azure_recovery_services_vault" {
-  source  = "Azure/avm-res-recoveryservices-vault/azurerm"
+  source  = "git::https://github.com/Azure/terraform-azurerm-avm-res-recoveryservices-vault.git?ref=2794a299f935ed4999685a92fae7523b91b72267"
   version = "0.1.1"
 
   for_each = toset(var.name)
