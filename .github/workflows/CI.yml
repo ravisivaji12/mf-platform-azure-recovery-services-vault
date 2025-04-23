@@ -110,9 +110,15 @@ jobs:
       - name: Terraform Init
         run: terraform init 
         
-      - name: Install Checkov
-        run: pip install checkov
-
-      - name: Run Checkov scan
-        run: |
-          checkov -d . --framework terraform 
+      - name: Run Checkov scan (SARIF output)
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: terraform
+          output_format: sarif
+          output_file_path: results.sarif
+      
+      - name: Upload SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
