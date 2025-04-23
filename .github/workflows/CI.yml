@@ -141,7 +141,7 @@ jobs:
       # - name: Terraform Plan                
       #   run: terraform plan -out=main.tfplan -input=false
 
-compliance:
+  compliance:
     runs-on: ubuntu-latest
 
     steps:
