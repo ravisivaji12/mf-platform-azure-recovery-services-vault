@@ -148,9 +148,10 @@ jobs:
           path: plan.out
 
   checkov:
-    needs: plan
+    name: checkov Plan
     runs-on: ubuntu-latest
     needs: terraform-plan
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
