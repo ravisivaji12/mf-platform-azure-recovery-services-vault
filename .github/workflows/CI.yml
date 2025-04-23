@@ -149,8 +149,12 @@ jobs:
 
       - name: Validate JSON Output
         run: |
+          cat tfplan.json
           file tfplan.json
           head tfplan.json
+
+      - name: Install terraform-compliance
+        run: pip install terraform-compliance
 
       - name: Run terraform-compliance
         run: terraform-compliance -p tfplan.json -f ./features
