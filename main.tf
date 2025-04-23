@@ -19,6 +19,7 @@ resource "azurerm_user_assigned_identity" "vault_identity" {
   name                = "vault-identity"
   resource_group_name = var.recovery_vault_config.resource_group_name
   location            = var.recovery_vault_config.location
+  tags                = var.recovery_vault_config.tags
 }
 
 module "azure_recovery_services_vault" {
