@@ -115,6 +115,4 @@ jobs:
 
       - name: Run Checkov scan
         run: |
-          checkov -d . --skip-check CKV_GHA_7 --skip-check CKV_TF_1 --quiet --output json > checkov_report.json
-
-  
+          checkov -d . --framework terraform 
