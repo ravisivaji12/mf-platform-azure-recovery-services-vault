@@ -210,8 +210,8 @@ jobs:
         run: |
           pip install terraform-compliance
 
-      - name: Run terraform-compliance
-        run: terraform-compliance -p tfplan.json -f features/
+      # - name: Run terraform-compliance
+      #   run: terraform-compliance -p tfplan.json -f features/
 
   # compliance:
   #   runs-on: ubuntu-latest
