@@ -115,4 +115,5 @@ jobs:
         with:
           directory: .
           skip-check: CKV_GHA_7
-          
+          framework: terraform
+
