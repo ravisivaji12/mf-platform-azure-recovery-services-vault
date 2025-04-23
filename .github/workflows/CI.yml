@@ -60,3 +60,49 @@ jobs:
         
       - name: Terraform Validate
         run: terraform validate
+
+  terraform-tfsec:
+    name: Terraform TfSec Scanning
+    runs-on: ubuntu-latest
+    # environment: production
+    env:
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Init
+        run: terraform init 
+        
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+
+  terraform-checkov:
+    name: Terraform Checkov Scanning
+    runs-on: ubuntu-latest
+    # environment: production
+    env:
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Init
+        run: terraform init 
+        
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
