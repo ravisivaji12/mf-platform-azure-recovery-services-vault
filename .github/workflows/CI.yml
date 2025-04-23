@@ -1,5 +1,10 @@
 name: CI
 
+permissions:
+  contents: read
+  id-token: write  # only if you're using OIDC
+  pull-requests: read  # only if needed for PR jobs
+
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
@@ -12,6 +17,7 @@ on:
       vault_name:
         description: 'Name of the Recovery Services Vault'
         required: true
+        default: 'my-recovery-vault'
         
 
 jobs:
