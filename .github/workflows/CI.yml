@@ -151,4 +151,4 @@ jobs:
         run: pip install terraform-compliance
 
       - name: Run terraform-compliance tests
-        run: terraform-compliance -p tfplan.json -f tests/features
+        run: terraform-compliance -p tfplan.json -f ./features
