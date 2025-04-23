@@ -149,7 +149,7 @@ jobs:
 
       - name: Validate JSON Output
         run: |
-          cat tfplan.json
+          cat tfplan.json | jq empty
           file tfplan.json
           head tfplan.json
 
