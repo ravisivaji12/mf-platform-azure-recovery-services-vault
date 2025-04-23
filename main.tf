@@ -22,7 +22,7 @@ resource "azurerm_user_assigned_identity" "vault_identity" {
 }
 
 module "azure_recovery_services_vault" {
-  source = "Azure/avm-res-recoveryservices-vault/azurerm"
+  source  = "Azure/avm-res-recoveryservices-vault/azurerm"
   version = "0.1.1"
 
   for_each = toset(var.name)
